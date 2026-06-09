@@ -270,7 +270,7 @@ def main():
     parser.add_argument("--count", "-n", type=int, default=0)
     parser.add_argument("--fullpage", action="store_true")
     parser.add_argument("--width",  type=int, default=1920)
-    parser.add_argument("--height", type=int, default=2500)
+    parser.add_argument("--height", type=int, default=2300)
     parser.add_argument("--manual", action="store_true")
 
     args = parser.parse_args()
