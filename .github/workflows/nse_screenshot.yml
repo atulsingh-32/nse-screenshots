@@ -1,16 +1,7 @@
 
 name: NSE Option Chain Screenshotter
-
-on:
-  schedule:
-    # 9:00 AM IST = 3:30 UTC
-    #  3.:30 PM IST (midnight) = 6:30 PM UTC
-    # Every 5 minutes from 3:30 UTC to 18:30 UTC = 9:00 AM to 3:30 PM IST
-     - cron: '30,35,40,45,50,55 3 * * 1-5'           # 3:30–3:55 UTC = 9:00–9:25 AM IST
-     - cron: '0,5,10,15,20,25,30,35,40,45,50,55 4-9 * * 1-5'  # 4:00–9:55 UTC = 9:30 AM–3:25 PM IST
-     - cron: '0 10 * * 1-5'   # 18:00–18:30 UTC = 11:30 PM–12:00 AM IST
-
-  # Run manually anytime from Actions tab
+"on":
+ 
   workflow_dispatch:
 
 jobs:
@@ -22,6 +13,18 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
+
+      - name: Check IST market hours
+        id: hours
+        run: |
+          IST=$(TZ='Asia/Kolkata' date +%H%M)
+          echo "Current IST time: $IST"
+          if [ "$IST" -lt "930" ] || [ "$IST" -ge "1530" ]; then
+            echo "in_window=false" >> $GITHUB_OUTPUT
+          else
+            echo "in_window=true" >> $GITHUB_OUTPUT
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -35,6 +38,7 @@ jobs:
         run: playwright install firefox --with-deps
 
       - name: Take screenshot
+        if: steps.hours.outputs.in_window == 'true'
         run: |
           python my.py \
             https://www.nseindia.com/option-chain \
@@ -43,6 +47,7 @@ jobs:
             --output screenshots
 
       - name: Commit screenshot
+        if: steps.hours.outputs.in_window == 'true'
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
