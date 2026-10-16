@@ -21,7 +21,7 @@ except ImportError:
     IST = timezone(timedelta(hours=5, minutes=30))
 
 # ── Schedule constants ────────────────────────────────────────────────────────
-MARKET_OPEN  = dtime(9,  30)  # 9:30 AM IST
+MARKET_OPEN  = dtime(9,  15)  # 9:30 AM IST
 MARKET_CLOSE = dtime(15, 30)  # 3:30 PM IST
 
 # ── Schedule helpers ──────────────────────────────────────────────────────────
@@ -48,7 +48,7 @@ def seconds_until_next_window() -> float:
     if is_in_window() and weekday < 6:
         return 0
 
-    candidate = now.replace(hour=9, minute=30, second=0, microsecond=0)
+    candidate = now.replace(hour=9, minute=15, second=0, microsecond=0)
 
     if now.time() >= MARKET_CLOSE or now.time() >= MARKET_OPEN:
         candidate += timedelta(days=1)
